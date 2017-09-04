@@ -48,6 +48,26 @@ func HandleProvision(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("500 - Failed to create certificate"))
 	}
 
+	presp, err := svc.GetPolicy(&iot.GetPolicyInput{
+		PolicyName:     aws.String("PubSubToAnyTopic"),
+	})
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to get policy: %v\n", err)
+		w.Write([]byte("500 - Failed to get policy"))
+	}
+
+
+	_, err = svc.AttachPrincipalPolicy(&iot.AttachPrincipalPolicyInput{
+		PolicyName: presp.PolicyName,
+		Principal:  resp.CertificateArn,
+	})
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to attach policy: %v\n", err)
+		w.Write([]byte("500 - Failed to get policy"))
+	}
+
 	tconfig := model.NewThingConfig(resp)
 
 	jData, err := json.Marshal(tconfig)
