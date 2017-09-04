@@ -14,17 +14,17 @@ type ThingConfig struct {
 
 	// The certificate data, in PEM format.
 	CertificatePem string
+}
 
-	// The generated key pair.
-	KeyPair *iot.KeyPair
+type CsrConfig struct {
+	CsrText string
 }
 
 // NewThingConfig create a new thing configuration using the response
-func NewThingConfig(resp *iot.CreateKeysAndCertificateOutput) *ThingConfig {
+func NewThingConfig(resp *iot.CreateCertificateFromCsrOutput) *ThingConfig {
 	return &ThingConfig{
 		CertificateArn: *resp.CertificateArn,
 		CertificateID:  *resp.CertificateId,
 		CertificatePem: *resp.CertificatePem,
-		KeyPair:        resp.KeyPair,
 	}
 }

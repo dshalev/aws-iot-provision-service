@@ -37,13 +37,18 @@ func HandleProvision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println("Thing ARN: ", *ctResp.ThingArn)
+	decoder := json.NewDecoder(r.Body)
+	var b model.CsrConfig
+	_ = decoder.Decode(&b)
 
-	resp, err := svc.CreateKeysAndCertificate(&iot.CreateKeysAndCertificateInput{
+
+	resp, err := svc.CreateCertificateFromCsr(&iot.CreateCertificateFromCsrInput{
+		CertificateSigningRequest: aws.String(b.CsrText),
 		SetAsActive: aws.Bool(true),
 	})
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create certificate: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Failed to create certificate: %v %v\n", b, err)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("500 - Failed to create certificate"))
 	}
